@@ -1,50 +1,17 @@
 import "./style.css";
 
-interface Reserva {
-  tipoHabitacion: "standard" | "suite";
-  pax: number;
-  noches: number;
-}
+import { Reserva } from "./casos-clases.model";
 
-const reservas: Reserva[] = [
-  {
-    tipoHabitacion: "standard",
-    pax: 1,
-    noches: 3,
-  },
-  {
-    tipoHabitacion: "standard",
-    pax: 1,
-    noches: 4,
-  },
-  {
-    tipoHabitacion: "suite",
-    pax: 2,
-    noches: 1,
-  },
-];
-
-const preciosHabitacionesClienteIndividual = {
-  standard: 100,
-  suite: 150,
-};
-
-class TotalesCliente {
+export class Totales {
   reservas: Reserva[];
   preciosHabitaciones: { [tipo: string]: number };
-  cargoAdicional: number;
-  iva: number;
 
   constructor(
     reservas: Reserva[],
-    preciosHabitaciones: { [tipo: string]: number },
-    cargoAdicional: number,
-    iva: number
+    preciosHabitaciones: { [tipo: string]: number }
   ) {
     this.reservas = reservas;
     this.preciosHabitaciones = preciosHabitaciones;
-    this.cargoAdicional = cargoAdicional;
-    this.iva = iva;
   }
 
   calcularPorTipoDeHabitacion(): number {
@@ -60,8 +27,7 @@ class TotalesCliente {
     let totalCargoAdicional = 0;
     this.reservas.forEach((reserva) => {
       if (reserva.pax > 1) {
-        totalCargoAdicional +=
-          this.cargoAdicional * (reserva.pax - 1) * reserva.noches;
+        totalCargoAdicional += 40 * (reserva.pax - 1) * reserva.noches;
       }
     });
     return totalCargoAdicional;
@@ -74,21 +40,35 @@ class TotalesCliente {
   }
 
   calculaTotalConIva(): number {
-    const iva = this.iva;
+    const iva = 0.21;
     const subtotal = this.sumaSubtotal();
     const total = subtotal * (1 + iva);
     return Number(total.toFixed(2));
   }
 }
 
-const pedro = new TotalesCliente(
-  reservas,
-  preciosHabitacionesClienteIndividual,
-  40,
-  0.21
-);
+export class TotalesClienteParticular extends Totales {
+  constructor(
+    reservas: Reserva[],
+    preciosHabitaciones: { [tipo: string]: number }
+  ) {
+    super(reservas, preciosHabitaciones);
+  }
+}
 
-console.log(pedro.calcularPorTipoDeHabitacion());
-console.log(pedro.cargosAdicionales());
-console.log(pedro.sumaSubtotal());
-console.log(pedro.calculaTotalConIva());
+export class TotalesTourOperador extends Totales {
+  descuento: number;
+  constructor(
+    reservas: Reserva[],
+    preciosHabitaciones: { [tipo: string]: number },
+    descuento: number
+  ) {
+    super(reservas, preciosHabitaciones);
+    this.descuento = descuento;
+  }
+
+  sumaSubtotal(): number {
+    const subtotal = super.sumaSubtotal();
+    return subtotal * (1 - this.descuento / 100);
+  }
+}
