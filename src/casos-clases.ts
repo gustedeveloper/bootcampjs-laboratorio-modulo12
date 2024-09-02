@@ -2,7 +2,7 @@ import "./style.css";
 
 import { Reserva } from "./casos-clases.model";
 
-export class Totales {
+class Totales {
   reservas: Reserva[];
   preciosHabitaciones: { [tipo: string]: number };
 
@@ -28,6 +28,9 @@ export class Totales {
     this.reservas.forEach((reserva) => {
       if (reserva.pax > 1) {
         totalCargoAdicional += 40 * (reserva.pax - 1) * reserva.noches;
+      }
+      if (reserva.desayuno === true) {
+        totalCargoAdicional += 15 * reserva.pax * reserva.noches;
       }
     });
     return totalCargoAdicional;
